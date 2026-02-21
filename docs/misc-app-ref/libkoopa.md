@@ -976,6 +976,50 @@ typedef enum koopa_raw_binary_op koopa_raw_binary_op_t;
 - `KOOPA_RBO_SHR`: 逻辑右移 (`shr`).
 - `KOOPA_RBO_SAR`: 算术右移 (`sar`).
 
+## 类型
+
+`libkoopa` 定义了一些不透明指针类型, 用于隐藏具体的实现细节.
+
+### koopa_program_t
+
+**描述**
+
+Koopa IR 程序对象.
+
+**定义**
+
+```c
+typedef const void *koopa_program_t;
+```
+
+### koopa_raw_program_builder_t
+
+**描述**
+
+Raw program 构建器.
+
+**定义**
+
+```c
+typedef void *koopa_raw_program_builder_t;
+```
+
+### koopa_raw_file_t
+
+**描述**
+
+Raw 文件, 文件描述符 (`int`, UNIX/Linux 等) 或文件句柄 (`HANDLE`, Windows).
+
+**定义**
+
+```c
+#ifdef KOOPA_OS_WINDOWS
+typedef HANDLE koopa_raw_file_t;
+#else
+typedef int koopa_raw_file_t;
+#endif
+```
+
 ## 函数
 
 `libkoopa` 提供了一系列 C 语言接口, 分为几类:
@@ -1002,7 +1046,7 @@ koopa_error_code_t koopa_parse_from_file(const char *path,
 **参数**
 
 - `path`: 输入文件的路径字符串.
-- `program`: 指向 `koopa_program_t` 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
+- `program`: 指向 [`koopa_program_t`](#koopa_program_t) 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
 
 **返回值**
 
@@ -1034,7 +1078,7 @@ koopa_error_code_t koopa_parse_from_string(const char *str,
 **参数**
 
 - `str`: 包含 Koopa IR 程序代码的字符串.
-- `program`: 指向 `koopa_program_t` 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
+- `program`: 指向 [`koopa_program_t`](#koopa_program_t) 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
 
 **返回值**
 
@@ -1064,7 +1108,7 @@ koopa_error_code_t koopa_parse_from_stdin(koopa_program_t *program);
 
 **参数**
 
-- `program`: 指向 `koopa_program_t` 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
+- `program`: 指向 [`koopa_program_t`](#koopa_program_t) 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
 
 **返回值**
 
@@ -1096,8 +1140,8 @@ koopa_error_code_t koopa_parse_from_raw(koopa_raw_file_t file,
 
 **参数**
 
-- `file`: 已经打开的文件描述符. 该参数的类型 `koopa_raw_file_t` 在 UNIX/Linux 等平台为 `int` (文件描述符), 在 Windows 上为 `HANDLE` (文件句柄).
-- `program`: 指向 `koopa_program_t` 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
+- `file`: 已经打开并具备写权限的文件描述符.
+- `program`: 指向 [`koopa_program_t`](#koopa_program_t) 的指针. 解析成功后, 该指针指向的内存将被更新为新创建的 Koopa IR 程序对象.
 
 **返回值**
 
@@ -1454,8 +1498,9 @@ koopa_delete_program(program);
 
 **描述**
 
-创建一个新的原始程序构建器 (`koopa_raw_program_builder_t`).
-该构建器用于将高级的 `koopa_program_t` 对象转换为更易于遍历和分析的 `koopa_raw_program_t` 结构.
+创建一个新的原始程序构建器 ([`koopa_raw_program_builder_t`](#koopa_raw_program_builder_t)).
+
+该构建器用于将高级的 [`koopa_program_t`](#koopa_program_t) 对象转换为更易于遍历和分析的 [`koopa_raw_program_t`](#koopa_raw_program_t) 结构.
 
 **定义**
 
@@ -1501,9 +1546,9 @@ void koopa_delete_raw_program_builder(koopa_raw_program_builder_t builder);
 
 **描述**
 
-使用给定的构建器, 将 `koopa_program_t` 对象转换为 `koopa_raw_program_t` 结构.
+使用给定的构建器, 将 [`koopa_program_t`](#koopa_program_t) 对象转换为 [`koopa_raw_program_t`](#koopa_raw_program_t) 结构.
 
-`koopa_raw_program_t` 是 Koopa IR 的内存表示形式, 包含了程序的完整结构信息 (函数, 基本块, 指令等), 便于遍历和分析.
+[`koopa_raw_program_t`](#koopa_raw_program_t) 是 Koopa IR 的内存表示形式, 包含了程序的完整结构信息 (函数, 基本块, 指令等), 便于遍历和分析.
 
 生成的原始程序 (`koopa_raw_program_t`) 的生命周期依附于构建器 (`builder`). 只要构建器未被删除, 原始程序就有效.
 
@@ -1521,7 +1566,7 @@ koopa_raw_program_t koopa_build_raw_program(koopa_raw_program_builder_t builder,
 
 **返回值**
 
-- 返回构建好的 `koopa_raw_program_t` 结构.
+- 返回构建好的 [`koopa_raw_program_t`](#koopa_raw_program_t) 结构.
 
 **示例**
 
@@ -1542,9 +1587,9 @@ koopa_delete_program(program);
 
 **描述**
 
-将给定的原始程序 (`koopa_raw_program_t`) 逆向转换回 Koopa IR 程序对象 (`koopa_program_t`).
+将给定的原始程序 ([`koopa_raw_program_t`](#koopa_raw_program_t)) 逆向转换回 Koopa IR 程序对象 ([`koopa_program_t`](#koopa_program_t)).
 
-`libkoopa` 的文本输出函数(如 `koopa_dump_to_string`) 仅接受 `koopa_program_t`. 如果你手动构建或修改了 `raw` 结构, 并希望将其导出为 Koopa IR 文本形式, 则可以使用此函数将其转换为 `program` 对象.
+`libkoopa` 的文本输出函数(如 [`koopa_dump_to_string`](#koopa_dump_to_string)) 仅接受 `koopa_program_t`. 如果你手动构建或修改了 `raw` 结构, 并希望将其导出为 Koopa IR 文本形式, 则可以使用此函数将其转换为 `program` 对象.
 
 **定义**
 
@@ -1556,7 +1601,7 @@ koopa_error_code_t koopa_generate_raw_to_koopa(const koopa_raw_program_t *raw,
 **参数**
 
 - `raw`: 指向原始程序结构的指针.
-- `program`: 指向 `koopa_program_t` 的指针, 用于存储生成的新程序对象.
+- `program`: 指向 [`koopa_program_t`](#koopa_program_t) 的指针, 用于存储生成的新程序对象.
 
 **返回值**
 
